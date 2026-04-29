@@ -3,6 +3,7 @@ let currentQuiz = null;
 const API_BASE =
   localStorage.getItem("CRYOSPHERE_API_BASE") ||
   (window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "");
+const STATIC_MODE = isGithubPages() && !localStorage.getItem("CRYOSPHERE_API_BASE");
 
 const questionInput = document.querySelector("#question");
 const askButton = document.querySelector("#askButton");
@@ -79,6 +80,11 @@ function switchView(view) {
 }
 
 async function loadIndexStatus() {
+  if (STATIC_MODE) {
+    indexStatus.textContent = "GitHub Pages 静态演示已加载；完整问答需连接公网后端 API。";
+    return;
+  }
+
   try {
     const response = await fetch(`${API_BASE}/api/index/status`);
     const data = await response.json();
@@ -93,6 +99,29 @@ async function loadIndexStatus() {
 async function ask() {
   const question = questionInput.value.trim();
   if (!question) return;
+
+  if (STATIC_MODE) {
+    errorBox.hidden = true;
+    answerBody.textContent = buildStaticAnswer(question);
+    renderCitations([
+      {
+        chunk_id: "static-demo-1",
+        page: 261,
+        chapter: "第 8 章：冰冻圈与其他圈层的相互作用",
+        text: "静态演示引用：冰冻圈通过高反照率、相变潜热和低导热性等特征影响气候系统。部署公网 FastAPI 后端后，这里会显示真实教材检索片段。",
+        score: null
+      },
+      {
+        chunk_id: "static-demo-2",
+        page: 14,
+        chapter: "第 1 章：冰冻圈与冰冻圈科学",
+        text: "静态演示引用：冰冻圈科学关注冰、雪、冻土等组成要素及其与气候变化、社会发展的关系。",
+        score: null
+      }
+    ]);
+    loadTeacherDashboard();
+    return;
+  }
 
   askButton.disabled = true;
   askButton.textContent = "检索教材中";
@@ -154,6 +183,13 @@ function renderCitations(citations) {
 
 async function loadChapters() {
   chapterList.innerHTML = '<p class="muted">正在生成章节学习内容...</p>';
+  if (STATIC_MODE) {
+    chaptersTitle.textContent = "《冰冻圈科学概论》章节学习路线";
+    chaptersDescription.textContent = "按教材 10 章组织学习。当前为 GitHub Pages 静态演示版，部署公网后端后可刷新生成不同学习任务。";
+    chapterList.innerHTML = renderStaticChapters();
+    return;
+  }
+
   try {
     const response = await fetch(`${API_BASE}/api/learning/chapters`);
     const data = await response.json();
@@ -192,6 +228,13 @@ function renderChapter(chapter) {
 
 async function loadConcepts() {
   conceptList.innerHTML = '<p class="muted">正在生成概念卡片...</p>';
+  if (STATIC_MODE) {
+    conceptsTitle.textContent = "核心概念复习卡片";
+    conceptsDescription.textContent = "当前为静态演示概念卡。部署公网后端后可动态刷新不同概念组。";
+    conceptList.innerHTML = renderStaticConcepts();
+    return;
+  }
+
   try {
     const response = await fetch(`${API_BASE}/api/learning/concepts`);
     const data = await response.json();
@@ -232,6 +275,16 @@ function bindQuickQuestions(container) {
 async function loadQuiz() {
   quizResult.innerHTML = "";
   quizForm.innerHTML = '<p class="muted">正在加载题目...</p>';
+  if (STATIC_MODE) {
+    currentQuiz = getStaticQuiz();
+    quizTitle.textContent = currentQuiz.title;
+    quizDescription.textContent = currentQuiz.description;
+    quizForm.innerHTML = currentQuiz.questions
+      .map((question, index) => renderQuizQuestion(question, index))
+      .join("");
+    return;
+  }
+
   try {
     const response = await fetch(`${API_BASE}/api/quiz/current`);
     currentQuiz = await response.json();
@@ -272,6 +325,12 @@ async function submitQuiz(event) {
   currentQuiz.questions.forEach((question) => {
     answers[question.id] = formData.get(question.id) || "";
   });
+
+  if (STATIC_MODE) {
+    renderQuizResult(gradeStaticQuiz(currentQuiz, answers));
+    loadTeacherDashboard();
+    return;
+  }
 
   submitQuizButton.disabled = true;
   submitQuizButton.textContent = "提交中";
@@ -315,6 +374,28 @@ function renderQuizResult(result) {
 }
 
 async function loadTeacherDashboard() {
+  if (STATIC_MODE) {
+    renderTeacherMetrics({
+      chunk_count: 1384,
+      total_questions: 0,
+      grounded_rate: 0,
+      quiz_attempts: 0,
+      average_quiz_percent: 0
+    });
+    learningRecords.innerHTML = `
+      <div class="record-item">
+        <strong>GitHub Pages 静态演示模式</strong>
+        <p>公网页面已可访问。部署 FastAPI 后端并配置 CRYOSPHERE_API_BASE 后，将显示真实学习记录。</p>
+      </div>
+    `;
+    frequentQuestions.innerHTML = `
+      <div class="record-item"><strong>冰冻圈包括哪些组成部分？</strong></div>
+      <div class="record-item"><strong>冰冻圈为什么影响气候系统？</strong></div>
+      <div class="record-item"><strong>多年冻土退化会带来什么影响？</strong></div>
+    `;
+    return;
+  }
+
   try {
     const response = await fetch(`${API_BASE}/api/teacher/dashboard`);
     const data = await response.json();
@@ -328,6 +409,10 @@ async function loadTeacherDashboard() {
 
 function isGithubPages() {
   return window.location.hostname.endsWith("github.io");
+}
+
+function buildStaticAnswer(question) {
+  return `这是 GitHub Pages 静态演示回答。\n\n你的问题是：“${question}”\n\n在完整版本中，系统会先检索《冰冻圈科学概论》教材知识库，再调用 DeepSeek V4 生成带教材出处的中文回答。当前公网静态页不能直接保存 DeepSeek API Key，也不能运行 FastAPI/SQLite 后端，所以这里展示的是演示回答。\n\n要启用完整问答，需要把 FastAPI 后端部署到公网，并在浏览器 localStorage 中设置 CRYOSPHERE_API_BASE 为后端地址。`;
 }
 
 function renderStaticChapters() {
@@ -375,6 +460,58 @@ function renderStaticConcepts() {
       `
     )
     .join("");
+}
+
+function getStaticQuiz() {
+  return {
+    id: "static-cryosphere-basics",
+    title: "冰冻圈科学基础小测",
+    description: "GitHub Pages 静态演示题组，可直接作答并在前端判分。",
+    questions: [
+      {
+        id: "q1",
+        prompt: "冰冻圈的主要组成部分不包括哪一项？",
+        options: ["冰盖和山地冰川", "积雪和海冰", "多年冻土和季节冻土", "平流层臭氧"],
+        answer: "平流层臭氧",
+        explanation: "冰冻圈主要关注冰、雪、冻土等固态水圈要素。"
+      },
+      {
+        id: "q2",
+        prompt: "为什么说冰冻圈是气候变化的天然指示器？",
+        options: ["因为冰冻圈对气候变化敏感", "因为冰冻圈完全不变", "因为冰冻圈只存在于城市", "因为冰冻圈不受温度影响"],
+        answer: "因为冰冻圈对气候变化敏感",
+        explanation: "冰川、积雪、海冰和冻土等要素会快速响应温度和水分条件变化。"
+      },
+      {
+        id: "q3",
+        prompt: "冰雪高反照率主要影响哪一过程？",
+        options: ["地表能量平衡", "地核温度", "股票价格", "城市人口密度"],
+        answer: "地表能量平衡",
+        explanation: "冰雪通过反射太阳辐射改变地表吸收能量。"
+      }
+    ]
+  };
+}
+
+function gradeStaticQuiz(quiz, answers) {
+  const items = quiz.questions.map((question) => {
+    const correct = answers[question.id] === question.answer;
+    return {
+      question_id: question.id,
+      correct,
+      correct_answer: question.answer,
+      explanation: question.explanation
+    };
+  });
+  const score = items.filter((item) => item.correct).length;
+  const total = items.length;
+  return {
+    quiz_id: quiz.id,
+    score,
+    total,
+    percent: total ? Math.round((score / total) * 1000) / 10 : 0,
+    items
+  };
 }
 
 function renderTeacherMetrics(data) {
