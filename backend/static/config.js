@@ -1,0 +1,1 @@
+window.CRYOSPHERE_API_BASE = "";

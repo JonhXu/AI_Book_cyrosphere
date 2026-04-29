@@ -2,8 +2,9 @@ let currentMode = "classroom";
 let currentQuiz = null;
 const API_BASE =
   localStorage.getItem("CRYOSPHERE_API_BASE") ||
+  window.CRYOSPHERE_API_BASE ||
   (window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "");
-const STATIC_MODE = isGithubPages() && !localStorage.getItem("CRYOSPHERE_API_BASE");
+const STATIC_MODE = isGithubPages() && !API_BASE;
 
 const questionInput = document.querySelector("#question");
 const askButton = document.querySelector("#askButton");
