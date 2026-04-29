@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>冰冻圈科学课堂虚拟助教</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-icon">冰</div>
+          <div>
+            <h1>冰冻圈科学课堂助教智能体</h1>
+            <p>DeepSeek V4 + 权威教材的课堂辅助教学</p>
+          </div>
+        </div>
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="qa">教材问答</button>
+          <button class="nav-item" data-view="chapters">章节学习</button>
+          <button class="nav-item" data-view="concepts">概念复习</button>
+          <button class="nav-item" data-view="quiz">课堂小测</button>
+          <button class="nav-item" data-view="teacher">教师端管理</button>
+        </nav>
+        <section class="status-panel">
+          <span>当前知识源</span>
+          <strong>《冰冻圈科学概论》</strong>
+          <p id="indexStatus">正在读取教材知识库状态...</p>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <section class="hero">
+          <div>
+            <span class="eyebrow">Cryosphere Teaching Agent</span>
+            <h2>基于教材出处的课堂问答</h2>
+          </div>
+          <p>围绕冰川、积雪、冻土、海冰与气候系统，优先检索《冰冻圈科学概论》教材内容，再生成可追溯的中文教学回答。</p>
+        </section>
+
+        <section class="view active" id="view-qa">
+          <header class="topbar">
+            <div>
+              <span class="eyebrow">学生端 MVP</span>
+              <h2>提问工作区</h2>
+            </div>
+            <div class="mode-switch" aria-label="回答模式">
+              <button class="mode-button active" data-mode="classroom">课堂解释</button>
+              <button class="mode-button" data-mode="review">复习重点</button>
+              <button class="mode-button" data-mode="homework_hint">作业提示</button>
+            </div>
+          </header>
+
+          <section class="ask-panel">
+            <textarea id="question">冰冻圈包括哪些组成部分？它为什么对气候系统很重要？</textarea>
+            <button class="send-button" id="askButton">提问</button>
+          </section>
+
+          <div class="error" id="errorBox" hidden></div>
+
+          <section class="answer-grid">
+            <article class="answer-panel">
+              <h3>助教回答</h3>
+              <div class="answer-body" id="answerBody">提问后，这里会显示基于教材检索生成的回答。</div>
+            </article>
+
+            <article class="citation-panel">
+              <h3>教材依据</h3>
+              <div class="citation-list" id="citationList">
+                <p class="muted">建立教材知识库并提问后，会显示召回片段。</p>
+              </div>
+            </article>
+          </section>
+        </section>
+
+        <section class="view" id="view-chapters">
+          <header class="topbar">
+            <div>
+              <span class="eyebrow">章节学习</span>
+              <h2 id="chaptersTitle">按课程主题进入教材</h2>
+            </div>
+            <button class="ghost-button" id="refreshChaptersButton">刷新章节学习</button>
+          </header>
+          <p class="section-description" id="chaptersDescription">正在生成章节学习内容...</p>
+          <section class="chapter-list" id="chapterList"></section>
+        </section>
+
+        <section class="view" id="view-concepts">
+          <header class="topbar">
+            <div>
+              <span class="eyebrow">概念复习</span>
+              <h2 id="conceptsTitle">核心概念卡片</h2>
+            </div>
+            <button class="ghost-button" id="refreshConceptsButton">刷新概念卡</button>
+          </header>
+          <p class="section-description" id="conceptsDescription">正在生成概念卡片...</p>
+          <section class="content-grid" id="conceptList"></section>
+        </section>
+
+        <section class="view" id="view-quiz">
+          <header class="topbar">
+            <div>
+              <span class="eyebrow">课堂小测</span>
+              <h2 id="quizTitle">冰冻圈科学基础小测</h2>
+            </div>
+            <button class="ghost-button" id="reloadQuizButton">刷新小测</button>
+          </header>
+          <section class="quiz-panel">
+            <p class="muted" id="quizDescription">正在加载测验题目...</p>
+            <form id="quizForm" class="quiz-form"></form>
+            <button class="send-button quiz-submit" id="submitQuizButton">提交测验</button>
+            <div id="quizResult" class="quiz-result"></div>
+          </section>
+        </section>
+
+        <section class="view" id="view-teacher">
+          <header class="topbar">
+            <div>
+              <span class="eyebrow">教师端管理</span>
+              <h2>课堂学习仪表盘</h2>
+            </div>
+            <button class="ghost-button" id="refreshTeacherButton">刷新数据</button>
+          </header>
+          <section class="metric-grid" id="teacherMetrics"></section>
+          <section class="teacher-grid">
+            <article class="answer-panel">
+              <h3>最近学习记录</h3>
+              <div id="learningRecords" class="record-list"></div>
+            </article>
+            <article class="citation-panel">
+              <h3>近期高频问题</h3>
+              <div id="frequentQuestions" class="record-list"></div>
+            </article>
+          </section>
+        </section>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

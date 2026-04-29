@@ -1,0 +1,13 @@
+.DS_Store
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+node_modules/
+dist/
+data/processed/
+data/indexes/
+data/app.db
+冰冻圈科学-秦大河.pdf
+
