@@ -1,1 +1,1 @@
-window.CRYOSPHERE_API_BASE = "https://turning-tracking-boolean-occurred.trycloudflare.com";
+window.CRYOSPHERE_API_BASE = "https://increasing-scores-finals-archives.trycloudflare.com";

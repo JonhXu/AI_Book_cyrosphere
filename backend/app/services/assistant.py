@@ -1,8 +1,31 @@
 from app.models.schemas import AskRequest, AskResponse, Citation
-from app.rag.deepseek import DeepSeekClient
+from app.rag.deepseek import DeepSeekClient, DeepSeekError
 from app.rag.prompting import build_prompt
 from app.rag.retriever import retrieve_context
 from app.services.learning import save_learning_record
+
+
+def _fallback_answer(question: str, contexts: list[dict], reason: str) -> str:
+    points = []
+    for item in contexts[:3]:
+        text = " ".join(item["text"].split())
+        if len(text) > 160:
+            text = f"{text[:160]}..."
+        page = item.get("page")
+        chapter = item.get("chapter") or "教材相关章节"
+        source = f"{chapter}"
+        if page is not None:
+            source = f"{source}，第 {page} 页"
+        points.append(f"- {source}：{text}")
+
+    joined_points = "\n".join(points)
+    return (
+        f"DeepSeek 当前未能稳定返回（{reason}），我先根据《冰冻圈科学概论》教材检索片段给出临时回答。\n\n"
+        f"你的问题是：{question}\n\n"
+        "教材依据显示：\n"
+        f"{joined_points}\n\n"
+        "建议课堂学习时继续围绕这些教材出处追问，我会优先依据原教材片段进行解释。"
+    )
 
 
 async def answer_question(request: AskRequest) -> AskResponse:
@@ -24,7 +47,14 @@ async def answer_question(request: AskRequest) -> AskResponse:
 
     prompt = build_prompt(question=request.question, contexts=contexts, mode=request.mode)
     client = DeepSeekClient()
-    answer = await client.chat(prompt)
+    try:
+        answer = await client.chat(prompt)
+    except DeepSeekError as exc:
+        answer = _fallback_answer(
+            question=request.question,
+            contexts=contexts,
+            reason=str(exc),
+        )
 
     citations = [
         Citation(
