@@ -67,3 +67,9 @@ http://127.0.0.1:8000
 - 已实现 FastAPI 问答接口。
 - 已实现无需前端构建工具的本地学生端 UI。
 - React/Vite 版本前端代码已预留在 `frontend/`，后续安装 npm 后可升级。
+
+## GitHub Pages 静态访问
+
+`docs/` 目录是 GitHub Pages 静态发布版本。它可以通过 `https://<username>.github.io/<repo>/` 公网访问。
+
+注意：GitHub Pages 不能运行 FastAPI 后端，也不能安全保存 DeepSeek API Key。因此静态页面可公网打开，但完整 AI 问答、学习记录、测验刷新和教师端统计需要另行部署后端 API。
