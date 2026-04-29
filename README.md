@@ -73,3 +73,15 @@ http://127.0.0.1:8000
 `docs/` 目录是 GitHub Pages 静态发布版本。它可以通过 `https://<username>.github.io/<repo>/` 公网访问。
 
 注意：GitHub Pages 不能运行 FastAPI 后端，也不能安全保存 DeepSeek API Key。因此静态页面可公网打开，但完整 AI 问答、学习记录、测验刷新和教师端统计需要另行部署后端 API。
+
+当前仓库：
+
+```text
+https://github.com/JonhXu/AI_Book_cyrosphere
+```
+
+当前 GitHub Pages 地址：
+
+```text
+https://jonhxu.github.io/AI_Book_cyrosphere/
+```
