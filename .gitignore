@@ -9,5 +9,5 @@ dist/
 data/processed/
 data/indexes/
 data/app.db
+data/seed/*.db
 冰冻圈科学-秦大河.pdf
-

@@ -1,0 +1,16 @@
+.DS_Store
+.git
+.github
+.venv
+__pycache__
+.pytest_cache
+.mypy_cache
+node_modules
+dist
+frontend
+data/app.db
+data/raw
+data/processed
+data/indexes
+冰冻圈科学-秦大河.pdf
+backend/.env

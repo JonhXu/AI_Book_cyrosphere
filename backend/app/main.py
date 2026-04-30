@@ -23,4 +23,6 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-app.mount("/", StaticFiles(directory=PROJECT_ROOT / "backend" / "static", html=True), name="static")
+static_dir = PROJECT_ROOT / "backend" / "static"
+if static_dir.exists():
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")

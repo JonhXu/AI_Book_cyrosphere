@@ -74,6 +74,20 @@ http://127.0.0.1:8000
 
 注意：GitHub Pages 不能运行 FastAPI 后端，也不能安全保存 DeepSeek API Key。因此静态页面可公网打开，但完整 AI 问答、学习记录、测验刷新和教师端统计需要另行部署后端 API。
 
+当前已加入 Render 固定后端部署配置：
+
+- `Dockerfile`
+- `render.yaml`
+- `backend/scripts/create_deploy_seed.py`
+
+推荐用 Render Blueprint 部署 `ai-book-cyrosphere-api`，得到固定 HTTPS 后端地址后，在 `docs/config.js` 中配置：
+
+```js
+window.CRYOSPHERE_API_BASE = "https://ai-book-cyrosphere-api.onrender.com";
+```
+
+注意：`data/seed/app.db` 包含教材文本切块，默认不提交到公开仓库。正式部署时建议使用私有后端仓库或学校/云服务器保存该文件。
+
 当前仓库：
 
 ```text
